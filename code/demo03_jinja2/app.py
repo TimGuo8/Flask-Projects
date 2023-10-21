@@ -35,6 +35,11 @@ def control_statement():
             "author": "曹雪芹"
         }]
     return render_template("control.html", age=age, books = books)
-
+@app.route("/child1")
+def child1():
+    return render_template("child1.html")
+@app.route("/child2")
+def child2():
+    return render_template("child2.html")
 if __name__ == '__main__':
     app.run()
