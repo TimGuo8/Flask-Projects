@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+{#缩进不是必须的 只是增加可读性#}
+<body>
+{% if age >= 18 %}
+    <div>You are old enough!</div>
+{% elif age < 18 %}
+    <div>Get out!!</div>
+{% endif %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Author</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+            <tr>
+                <td>{{ book.name }}</td>
+                <td>{{ book.author }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
