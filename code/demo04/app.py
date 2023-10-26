@@ -25,13 +25,31 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100))
     password = db.Column(db.String(100))
+
+    articles = db.relationship("Article", back_populates="author")
 # user = User(username = "Tim", password = '199912')
+class Article(db.Model):
+    __tablename__= "article"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # String 类型最多255个字符
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+
+#     添加作者的外键
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    # 等于自动完成User.query.get(article.author_id)
+    author = db.relationship("User", back_populates="articles")
+    # backref 会自动给user添加一个articles的属性，用来获取文章列表，但是多人开发容易出现困惑
+    # author = db.relationship("User", backref="articles")
+
+
 
 
 with app.app_context():
+    # db.drop_all()
     db.create_all()
 
 @app.route('/')
@@ -77,5 +95,29 @@ def delete_user():
 # 同步到数据库
     db.session.commit()
     return "数据删除成功！"
+
+@app.route('/article/add')
+def add_article():
+    article1 = Article(title="Article1", content="This is content for article1")
+    # 通过访问author属性来关联User对象
+    article1.author = User.query.get(2)
+    article2 = Article(title="Article2", content="This is content for article2")
+    article2.author = User.query.get(2)
+    article3 = Article(title="Article3", content="This is content for article3")
+    article3.author = User.query.get(2)
+    db.session.add_all([article1, article2, article3])
+    db.session.commit()
+    return "增加文章成功！"
+
+@app.route('/article/query')
+def query_article():
+    user = User.query.get(2)
+    # print(user)
+    for article in user.articles:
+        print(article.title)
+    return "查找文章成功！"
+
+
+
 if __name__ == '__main__':
     app.run()
