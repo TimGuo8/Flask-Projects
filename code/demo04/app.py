@@ -16,6 +16,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (f"mysql+pymysql://{USERNAME}:{PASSWORD}
 # SQLAlchemy会自动读取app.config中连接数据库的信息
 db = SQLAlchemy(app)
 
+
+# ORM映射三步：
+#   python -m flask db init这步只需要执行一次
+#   python -m flask db migrate 识别ORM模型的改变，生成迁移脚本
+#   python -m flask db upgrade 运行迁移脚本
+from flask_migrate import Migrate
+Migrate = Migrate(app, db)
+
 # 上下文原理
 # with app.app_context():
 #     with db.engine.connect() as conn:
@@ -28,7 +36,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100))
     password = db.Column(db.String(100))
-
+    # 若要新增这个字段，只用执行迁移的后两步就行了
+    email = db.Column(db.String(100))
     articles = db.relationship("Article", back_populates="author")
 # user = User(username = "Tim", password = '199912')
 class Article(db.Model):
@@ -48,9 +57,11 @@ class Article(db.Model):
 
 
 
-with app.app_context():
-    # db.drop_all()
-    db.create_all()
+# with app.app_context():
+#     # db.drop_all()
+#     # 有局限性：只能识别新的模型，无法识别旧的table的字段更新
+#     # 所以这种不用 需要用到flask-migrate
+#     db.create_all()
 
 @app.route('/')
 def hello_world():  # put application's code here
